@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["www/**", "capacitor.config.json", "package.json", ".github/workflows/build-apk.yml"]
+    paths: ["apk-index.html", "capacitor.config.json", "package.json", ".github/workflows/build-apk.yml"]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,6 +16,10 @@ jobs:
         with:
           distribution: temurin
           java-version: 17
+      - name: Prepare web files
+        run: |
+          mkdir -p www
+          cp apk-index.html www/index.html
       - name: Bundle libraries for offline use
         run: |
           curl -fsSL https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js -o www/xlsx.js
