@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["apk-index.html", "capacitor.config.json", "package.json", ".github/workflows/build-apk.yml"]
+    paths: ["apk-index.html", "icon.png", "capacitor.config.json", "package.json", ".github/workflows/build-apk.yml"]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -28,6 +28,19 @@ jobs:
       - run: npm install
       - run: npx cap add android
       - run: npx cap sync android
+      - name: App icon
+        run: |
+          pip install pillow
+          python3 - <<'PY'
+          from PIL import Image
+          im=Image.open("icon.png").convert("RGBA")
+          for d,s in {"mdpi":48,"hdpi":72,"xhdpi":96,"xxhdpi":144,"xxxhdpi":192}.items():
+              p="android/app/src/main/res/mipmap-"+d+"/"
+              r=im.resize((s,s),Image.LANCZOS)
+              for n in ("ic_launcher.png","ic_launcher_round.png","ic_launcher_foreground.png"):
+                  r.save(p+n)
+          PY
+          rm -rf android/app/src/main/res/mipmap-anydpi-v26
       - name: Fixed signing key
         run: |
           mkdir -p ~/.android
